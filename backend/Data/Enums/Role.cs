@@ -1,0 +1,7 @@
+namespace BookingApp.API.Data.Enums;
+
+public enum Role
+{
+    User = 0,
+    Admin = 1
+}

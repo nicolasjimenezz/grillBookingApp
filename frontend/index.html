@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookingApp</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>BookingApp</h1>
+            <div id="auth-section">
+                <!-- Login form or User info will be injected here -->
+            </div>
+        </header>
+
+        <main id="main-content" style="display: none;">
+            <section id="admin-panel" style="display: none;">
+                <h2>Admin Panel</h2>
+                <form id="create-user-form">
+                    <h3>Create User</h3>
+                    <input type="text" id="new-fullname" placeholder="Full Name" required>
+                    <input type="text" id="new-apt" placeholder="Apartment Code (e.g. 2A)" required pattern="\d+[A-Z]">
+                    <input type="text" id="new-username" placeholder="Username" required>
+                    <input type="password" id="new-password" placeholder="Password" required>
+                    <select id="new-role">
+                        <option value="0">User</option>
+                        <option value="1">Admin</option>
+                    </select>
+                    <button type="submit">Create User</button>
+                    <div id="create-user-msg"></div>
+                </form>
+            </section>
+
+            <section id="booking-section">
+                <div class="calendar-controls">
+                    <button id="prev-month">Previous Month</button>
+                    <h2 id="current-month-display"></h2>
+                    <button id="next-month">Next Month</button>
+                </div>
+
+                <table id="booking-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Day Slot</th>
+                            <th>Night Slot</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booking-tbody">
+                        <!-- Rows injected via JS -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script src="/src/app.js"></script>
+</body>
+</html>
