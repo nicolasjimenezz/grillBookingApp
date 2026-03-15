@@ -49,20 +49,30 @@ public class BookingService
 
         var currentMonth = new DateOnly(today.Year, today.Month, 1);
         var maxAllowedMonth = currentMonth.AddMonths(1);
-        
+
         if (date.Year > maxAllowedMonth.Year || (date.Year == maxAllowedMonth.Year && date.Month > maxAllowedMonth.Month))
             return (false, "Cannot book beyond next month.", null);
 
         using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            var userBookingsThisMonth = await _context.Bookings
-                .Where(b => b.UserId == userId && b.Date.Year == date.Year && b.Date.Month == date.Month)
-                .Where(b => !b.IsCancelled || b.CountsTowardQuota)
-                .CountAsync();
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return (false, "User not found.", null);
 
-            if (userBookingsThisMonth >= 2)
-                return (false, "Monthly limit reached.", null);
+            // Admins have no booking limits. 
+            // Also, if an admin is creating the booking for someone else, we bypass the limit.
+            bool skipLimitCheck = user.Role == Role.Admin || adminId.HasValue;
+
+            if (!skipLimitCheck)
+            {
+                var userBookingsThisMonth = await _context.Bookings
+                    .Where(b => b.UserId == userId && b.Date.Year == date.Year && b.Date.Month == date.Month)
+                    .Where(b => !b.IsCancelled || b.CountsTowardQuota)
+                    .CountAsync();
+
+                if (userBookingsThisMonth >= 2)
+                    return (false, "Monthly limit reached.", null);
+            }
 
             var booking = new Booking
             {
@@ -79,14 +89,12 @@ public class BookingService
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            var user = await _context.Users.FindAsync(userId);
-
             return (true, string.Empty, new BookingResponse
             {
                 Id = booking.Id,
                 Date = booking.Date,
                 TimeSlot = booking.TimeSlot,
-                FullName = user!.FullName,
+                FullName = user.FullName,
                 ApartmentCode = user.ApartmentCode,
                 IsCancelled = booking.IsCancelled,
                 UserId = booking.UserId

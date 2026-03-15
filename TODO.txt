@@ -1,5 +1,17 @@
+Usernames & passwords:
+
+admin1
+Admin123!
+
+admin2
+Admin123!
+
+usuario1
+usuario1
+
 Bugs to solve
 -Admins are not able to book more than 2 dates on the same month
 
 Features to add:
--Users
+-More sample users
+-If the users cancels a booking 5 minutes or less after requesting it, they get +1 booking time for this month (it gets reimbursed)
