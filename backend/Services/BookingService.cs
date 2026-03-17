@@ -121,11 +121,13 @@ public class BookingService
             return (false, "Cannot cancel past bookings.");
 
         var daysDifference = booking.Date.DayNumber - today.DayNumber;
+        var timeSinceCreation = DateTime.UtcNow - booking.CreatedAt;
 
         booking.IsCancelled = true;
         booking.CancelledAt = DateTime.UtcNow;
 
-        if (daysDifference >= 2)
+        // Reimburse if cancelled 2+ days in advance OR within 5 minutes of creation
+        if (daysDifference >= 2 || timeSinceCreation.TotalMinutes <= 5)
         {
             booking.CountsTowardQuota = false;
         }
