@@ -51,6 +51,20 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Ensure database is created and seeded
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
+
+    // If RESET_DB is set to "true", delete the database before creating it
+    if (builder.Configuration["RESET_DB"] == "true")
+    {
+        context.Database.EnsureDeleted();
+    }
+
+    context.Database.EnsureCreated();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
 

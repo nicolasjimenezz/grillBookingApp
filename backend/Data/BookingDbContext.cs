@@ -65,6 +65,18 @@ public class BookingDbContext : DbContext
         };
         admin2.PasswordHash = hasher.HashPassword(admin2, "Admin123!");
 
-        modelBuilder.Entity<User>().HasData(admin1, admin2);
+        var user1 = new User
+        {
+            Id = 3,
+            FullName = "User 1",
+            ApartmentCode = "1A",
+            Username = "user1",
+            Role = Role.User,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        user1.PasswordHash = hasher.HashPassword(user1, "user1");
+
+        modelBuilder.Entity<User>().HasData(admin1, admin2, user1);
     }
 }

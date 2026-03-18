@@ -9,9 +9,18 @@ Admin123!
 usuario1
 usuario1
 
+__________________________________________________________________________________________
+
 Bugs to solve
--Admins are not able to book more than 2 dates on the same month
+
 
 Features to add:
 -More sample users
--If the users cancels a booking 5 minutes or less after requesting it, they get +1 booking time for this month (it gets reimbursed)
+-If the users cancels a booking 5 minutes or less after requesting it, they get +1 booking time for this month (it gets reimbursed). Done!
+-Give the admins the ability to reset users passwords (including admins). This way when users/admin lose their password we can reset them.
+
+Long-term:
+-Add the ability for the users to reset their own password
+
+Things to do
+Find the way to reset the DB to start state (2 admins)
