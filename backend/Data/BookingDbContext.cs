@@ -68,7 +68,7 @@ public class BookingDbContext : DbContext
         var user1 = new User
         {
             Id = 3,
-            FullName = "User 1",
+            FullName = "John Doe",
             ApartmentCode = "1A",
             Username = "user1",
             Role = Role.User,
