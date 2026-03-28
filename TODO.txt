@@ -19,7 +19,7 @@ ________________________________________________________________________________
 Bugs to solve/features to add:
 
 Features to add:
--Give the admins the ability to reset users passwords (including admins). This way when users/admin lose their password we can reset them.
+-Give the admins the ability to reset users passwords (including admins). This way when users/admin lose their password we can reset them. Implemented, TO BE TESTED!
 -Add a red alert if the login fails (don't specify if user exists or if password is incorrect, just let the user know it has failed)
 
 Things to do
@@ -27,4 +27,4 @@ Things to do
 
 Ideas:
 Long-term:
--Add the ability for the users to reset their own password. NO, users have to reach out to the admins for a password reset.
+-Add the ability for the users to reset their own password. NO, users must reach out to the admins for a password reset.

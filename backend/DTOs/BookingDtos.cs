@@ -49,3 +49,9 @@ public class CreateAdminBookingRequest
     public DateOnly Date { get; set; }
     public TimeSlot TimeSlot { get; set; }
 }
+
+public class AdminResetPasswordRequest
+{
+    public int UserId { get; set; }
+    public string NewPassword { get; set; } = null!;
+}

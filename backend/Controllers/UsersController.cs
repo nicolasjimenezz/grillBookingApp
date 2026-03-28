@@ -25,4 +25,22 @@ public class UsersController : ControllerBase
 
         return CreatedAtAction(nameof(CreateUser), new { id = user.Id }, user);
     }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] AdminResetPasswordRequest request)
+    {
+        var success = await _userService.ResetPasswordAsync(request);
+        if (!success) return NotFound(new { message = "User not found" });
+
+        return Ok(new { message = "Password reset successfully" });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        // For simplicity, we'll add a method to get all users to populate the reset dropdown
+        // This should probably be in UserService, but I'll add it here for speed if it's not there.
+        // Wait, I should check if I need to add it to UserService.
+        return Ok(await _userService.GetAllUsersAsync());
+    }
 }

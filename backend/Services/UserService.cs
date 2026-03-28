@@ -64,4 +64,28 @@ public class UserService
             Role = user.Role
         };
     }
+
+    public async Task<IEnumerable<UserResponse>> GetAllUsersAsync()
+    {
+        return await _context.Users
+            .Select(u => new UserResponse
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                ApartmentCode = u.ApartmentCode,
+                Username = u.Username,
+                Role = u.Role
+            })
+            .ToListAsync();
+    }
+
+    public async Task<bool> ResetPasswordAsync(AdminResetPasswordRequest request)
+    {
+        var user = await _context.Users.FindAsync(request.UserId);
+        if (user == null) return false;
+
+        user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

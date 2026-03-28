@@ -188,8 +188,30 @@ function showMainContent() {
     document.getElementById('main-content').style.display = 'block';
     if (currentUser.role === 1) { // Admin
         document.getElementById('admin-panel').style.display = 'block';
+        loadUsersForAdmin();
     } else {
         document.getElementById('admin-panel').style.display = 'none';
+    }
+}
+
+async function loadUsersForAdmin() {
+    try {
+        const res = await fetch(`${API_BASE}/users`, { credentials: 'include' });
+        if (res.ok) {
+            const users = await res.json();
+            const select = document.getElementById('reset-user-select');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Select User...</option>';
+            users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id;
+                opt.textContent = `${u.fullName} (${u.username})`;
+                select.appendChild(opt);
+            });
+            select.value = currentValue;
+        }
+    } catch (err) {
+        console.error('Failed to load users', err);
     }
 }
 
@@ -224,9 +246,34 @@ function setupEventListeners() {
             msgDiv.textContent = 'User created successfully!';
             msgDiv.style.color = 'green';
             e.target.reset();
+            loadUsersForAdmin(); // Refresh the list
         } else {
             const err = await res.json();
             msgDiv.textContent = err.message || 'Error creating user';
+            msgDiv.style.color = 'red';
+        }
+    });
+
+    document.getElementById('reset-password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userId = parseInt(document.getElementById('reset-user-select').value);
+        const newPassword = document.getElementById('reset-new-password').value;
+
+        const res = await fetch(`${API_BASE}/users/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, newPassword }),
+            credentials: 'include'
+        });
+
+        const msgDiv = document.getElementById('reset-password-msg');
+        if (res.ok) {
+            msgDiv.textContent = 'Password reset successfully!';
+            msgDiv.style.color = 'green';
+            e.target.reset();
+        } else {
+            const err = await res.json();
+            msgDiv.textContent = err.message || 'Error resetting password';
             msgDiv.style.color = 'red';
         }
     });
