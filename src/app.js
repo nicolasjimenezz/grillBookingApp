@@ -249,7 +249,12 @@ function setupEventListeners() {
             loadUsersForAdmin(); // Refresh the list
         } else {
             const err = await res.json();
-            msgDiv.textContent = err.message || 'Error creating user';
+            if (err.errors) {
+                const errorMessages = Object.values(err.errors).flat();
+                msgDiv.textContent = errorMessages.join(', ');
+            } else {
+                msgDiv.textContent = err.message || 'Error creating user';
+            }
             msgDiv.style.color = 'red';
         }
     });
@@ -273,7 +278,12 @@ function setupEventListeners() {
             e.target.reset();
         } else {
             const err = await res.json();
-            msgDiv.textContent = err.message || 'Error resetting password';
+            if (err.errors) {
+                const errorMessages = Object.values(err.errors).flat();
+                msgDiv.textContent = errorMessages.join(', ');
+            } else {
+                msgDiv.textContent = err.message || 'Error resetting password';
+            }
             msgDiv.style.color = 'red';
         }
     });

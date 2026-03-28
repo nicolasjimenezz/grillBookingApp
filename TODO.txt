@@ -20,6 +20,7 @@ Bugs to solve/features to add:
 
 Features to add:
 -Give the admins the ability to reset users passwords (including admins). This way when users/admin lose their password we can reset them. Implemented, TO BE TESTED!
+Password can be null if we remove the HTML required tag. Done!
 -Add a red alert if the login fails (don't specify if user exists or if password is incorrect, just let the user know it has failed)
 
 Things to do
