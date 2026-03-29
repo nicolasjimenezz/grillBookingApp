@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookingApp</title>
-    <link rel="stylesheet" href="/src/style.css">
+    <link rel="stylesheet" href="/frontend/style.css">
 </head>
 <body>
     <div id="app">
@@ -65,6 +65,16 @@
             </section>
         </main>
     </div>
-    <script src="/src/app.js"></script>
+    <div id="custom-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-actions">
+                <button id="modal-yes-btn">Yes</button>
+                <button id="modal-cancel-btn">Cancel</button>
+                <button id="modal-ok-btn" style="display: none;">OK</button>
+            </div>
+        </div>
+    </div>
+    <script src="/frontend/app.js"></script>
 </body>
 </html>

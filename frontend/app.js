@@ -27,8 +27,8 @@ function renderApiConfig() {
     document.body.appendChild(configDiv);
 }
 
-window.changeApiUrl = () => {
-    const newUrl = prompt('Enter your local API URL (e.g., https://localhost:5001):', API_BASE);
+window.changeApiUrl = async () => {
+    const newUrl = await showModal('Enter your local API URL (e.g., https://localhost:5001):', 'prompt', API_BASE);
     if (newUrl) {
         localStorage.setItem(API_BASE_KEY, newUrl);
         location.reload();
@@ -374,15 +374,74 @@ function renderCalendar(year, month, bookings) {
     }
 }
 
+function showModal(message, type = 'alert', defaultValue = '') {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('custom-modal');
+        const msgPara = document.getElementById('modal-message');
+        const yesBtn = document.getElementById('modal-yes-btn');
+        const cancelBtn = document.getElementById('modal-cancel-btn');
+        const okBtn = document.getElementById('modal-ok-btn');
+        
+        // Handle prompt input
+        let input = document.getElementById('modal-input');
+        if (type === 'prompt') {
+            if (!input) {
+                input = document.createElement('input');
+                input.id = 'modal-input';
+                input.type = 'text';
+                input.style.width = '100%';
+                input.style.marginTop = '1rem';
+                input.style.padding = '0.5rem';
+                msgPara.after(input);
+            }
+            input.value = defaultValue;
+            input.style.display = 'block';
+            setTimeout(() => input.focus(), 10);
+        } else if (input) {
+            input.style.display = 'none';
+        }
+
+        msgPara.textContent = message;
+        modal.style.display = 'flex';
+
+        if (type === 'confirm') {
+            yesBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+            okBtn.style.display = 'none';
+            yesBtn.textContent = 'Yes';
+        } else if (type === 'prompt') {
+            yesBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+            okBtn.style.display = 'none';
+            yesBtn.textContent = 'OK';
+        } else {
+            yesBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            okBtn.style.display = 'inline-block';
+            msgPara.classList.add('modal-error');
+        }
+
+        const cleanup = (result) => {
+            modal.style.display = 'none';
+            msgPara.classList.remove('modal-error');
+            yesBtn.textContent = 'Yes';
+            yesBtn.onclick = null;
+            cancelBtn.onclick = null;
+            okBtn.onclick = null;
+            resolve(result);
+        };
+
+        yesBtn.onclick = () => cleanup(type === 'prompt' ? input.value : true);
+        cancelBtn.onclick = () => cleanup(false);
+        okBtn.onclick = () => cleanup(true);
+    });
+}
+
 async function createBooking(date, timeSlot) {
     try {
         let url = `${API_BASE}/bookings`;
         let body = { date, timeSlot };
 
-        // If admin, we could prompt for userId, but for MVP we'll just book for themselves 
-        // unless we build a user selector. The prompt says "Create bookings on behalf of users".
-        // For simplicity, we'll just book for the logged-in user here.
-        
         const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -394,15 +453,17 @@ async function createBooking(date, timeSlot) {
             loadBookings();
         } else {
             const err = await res.json();
-            alert(`Booking failed: ${err.message}`);
+            showModal(`Booking failed: ${err.message}`);
         }
     } catch (err) {
         console.error(err);
+        showModal('An error occurred while creating the booking.');
     }
 }
 
 async function cancelBooking(id) {
-    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    const confirmed = await showModal('Are you sure you want to cancel this booking?', 'confirm');
+    if (!confirmed) return;
     
     try {
         const res = await fetch(`${API_BASE}/bookings/${id}/cancel`, {
@@ -414,9 +475,10 @@ async function cancelBooking(id) {
             loadBookings();
         } else {
             const err = await res.json();
-            alert(`Cancellation failed: ${err.message}`);
+            showModal(`Cancellation failed: ${err.message}`);
         }
     } catch (err) {
         console.error(err);
+        showModal('An error occurred while cancelling the booking.');
     }
 }
