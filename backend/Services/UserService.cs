@@ -46,7 +46,8 @@ public class UserService
             FullName = user.FullName,
             ApartmentCode = user.ApartmentCode,
             Username = user.Username,
-            Role = user.Role
+            Role = user.Role,
+            IsActive = user.IsActive
         };
     }
 
@@ -61,7 +62,8 @@ public class UserService
             FullName = user.FullName,
             ApartmentCode = user.ApartmentCode,
             Username = user.Username,
-            Role = user.Role
+            Role = user.Role,
+            IsActive = user.IsActive
         };
     }
 
@@ -74,7 +76,8 @@ public class UserService
                 FullName = u.FullName,
                 ApartmentCode = u.ApartmentCode,
                 Username = u.Username,
-                Role = u.Role
+                Role = u.Role,
+                IsActive = u.IsActive
             })
             .ToListAsync();
     }
@@ -85,6 +88,16 @@ public class UserService
         if (user == null) return false;
 
         user.PasswordHash = _passwordHasher.HashPassword(user, request.NewPassword);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> ToggleUserStatusAsync(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null) return false;
+
+        user.IsActive = !user.IsActive;
         await _context.SaveChangesAsync();
         return true;
     }

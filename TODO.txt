@@ -9,6 +9,9 @@ Admin123!
 user1
 user1
 
+user2
+user2
+
 __________________________________________________________________________________________
 
 Important mentions:
@@ -21,14 +24,15 @@ Bugs to solve/features to add:
 Features to add:
 -Give the admins the ability to reset users passwords (including admins). This way when users/admin lose their password we can reset them. Implemented, TO BE TESTED!
 Password can be null if we remove the HTML required tag. Done!
--Add a red alert if the login fails (don't specify if user exists or if password is incorrect, just let the user know it has failed)
+-Add a red alert if the login fails (don't specify if user exists or if password is incorrect, just let the user know it has failed). Done!
 -I want to remote the default pop-ups/prompts promt the browser and have dedicated ones for a more professional and tailored look, to accomplish this:
  .Change the "Booking failed: Monthly limit reached." pop-up for a red message that displays "Booking failed: Monthly limit reached"
  .Change the "Are you sure you want to cancel this booking?" pop-up for a red message that displays the option "Yes" and "Cancel"
--Admins should be able to disable users (they won't be deleted, but they should not be able to sign in)
+-Admins should be able to disable users (they won't be deleted, just soft disable so they become unable to sign in). Done!
 
 Things to do
 -Clean up the HTML, CSS and JS code, order/organize it.
+-Test if multiple users can have the same appartment (this should not be possible)
 
 Ideas:
 Long-term:

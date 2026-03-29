@@ -38,9 +38,15 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllUsers()
     {
-        // For simplicity, we'll add a method to get all users to populate the reset dropdown
-        // This should probably be in UserService, but I'll add it here for speed if it's not there.
-        // Wait, I should check if I need to add it to UserService.
         return Ok(await _userService.GetAllUsersAsync());
+    }
+
+    [HttpPost("{id}/toggle-status")]
+    public async Task<IActionResult> ToggleUserStatus(int id)
+    {
+        var success = await _userService.ToggleUserStatusAsync(id);
+        if (!success) return NotFound(new { message = "User not found" });
+
+        return Ok(new { message = "User status toggled successfully" });
     }
 }

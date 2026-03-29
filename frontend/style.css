@@ -146,7 +146,19 @@ th {
     background-color: #5a6268;
 }
 
-.modal-error {
-    color: #dc3545;
-    font-weight: bold;
+#manage-users-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 2rem;
+}
+
+#users-table {
+    margin-top: 1rem;
+}
+
+#users-table button {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
 }

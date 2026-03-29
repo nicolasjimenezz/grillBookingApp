@@ -34,6 +34,7 @@ public class UserResponse
     public string ApartmentCode { get; set; } = null!;
     public string Username { get; set; } = null!;
     public Role Role { get; set; }
+    public bool IsActive { get; set; }
 }
 
 public class BookingResponse

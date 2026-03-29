@@ -205,6 +205,8 @@ async function loadUsersForAdmin() {
         const res = await fetch(`${API_BASE}/users`, { credentials: 'include' });
         if (res.ok) {
             const users = await res.json();
+            
+            // Update reset password dropdown
             const select = document.getElementById('reset-user-select');
             const currentValue = select.value;
             select.innerHTML = '<option value="">Select User...</option>';
@@ -215,11 +217,53 @@ async function loadUsersForAdmin() {
                 select.appendChild(opt);
             });
             select.value = currentValue;
+
+            // Update manage users table
+            const tbody = document.getElementById('users-tbody');
+            tbody.innerHTML = '';
+            users.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${u.fullName}</td>
+                    <td>${u.apartmentCode}</td>
+                    <td>${u.username}</td>
+                    <td style="color: ${u.isActive ? 'green' : 'red'}">${u.isActive ? 'Active' : 'Disabled'}</td>
+                    <td>
+                        <button onclick="toggleUserStatus(${u.id}, ${u.isActive})">
+                            ${u.isActive ? 'Disable' : 'Enable'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
     } catch (err) {
         console.error('Failed to load users', err);
     }
 }
+
+window.toggleUserStatus = async (userId, currentStatus) => {
+    const action = currentStatus ? 'disable' : 'enable';
+    const confirmed = await showModal(`Are you sure you want to ${action} this user?`, 'confirm');
+    if (!confirmed) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/users/${userId}/toggle-status`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        if (res.ok) {
+            loadUsersForAdmin();
+        } else {
+            const err = await res.json();
+            showModal(`Failed to toggle status: ${err.message}`);
+        }
+    } catch (err) {
+        console.error(err);
+        showModal('An error occurred while toggling user status.');
+    }
+};
 
 function setupEventListeners() {
     document.getElementById('prev-month').addEventListener('click', () => {
