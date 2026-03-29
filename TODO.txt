@@ -31,8 +31,10 @@ Password can be null if we remove the HTML required tag. Done!
 -Admins should be able to disable users (they won't be deleted, just soft disable so they become unable to sign in). Done!
 
 Things to do
+-Test if multiple users can have the same appartment (this should not be possible). Works good!
 -Clean up the HTML, CSS and JS code, order/organize it.
--Test if multiple users can have the same appartment (this should not be possible)
+-Show this to a non-tech person to ensure it is easy to user
+-Review the whole picture
 
 Ideas:
 Long-term:
