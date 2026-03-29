@@ -88,3 +88,13 @@ th {
 .cancel-btn:hover {
     background-color: #c82333;
 }
+
+.error-msg {
+    color: #dc3545;
+    background-color: #ffebee;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    border: 1px solid #dc3545;
+}

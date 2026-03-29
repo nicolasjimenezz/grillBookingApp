@@ -144,6 +144,7 @@ function renderLoginForm(keepExisting = false) {
             <input type="text" id="username" placeholder="Username" required>
             <input type="password" id="password" placeholder="Password" required>
             <button type="submit">Login</button>
+            <div id="login-error" class="error-msg" style="display: none;"></div>
         </form>
     `;
 
@@ -158,6 +159,8 @@ function renderLoginForm(keepExisting = false) {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('login-error');
+        errorDiv.style.display = 'none';
         
         try {
             const res = await fetch(`${API_BASE}/auth/login`, {
@@ -169,10 +172,13 @@ function renderLoginForm(keepExisting = false) {
             if (res.ok) {
                 checkAuth();
             } else {
-                alert('Login failed');
+                errorDiv.textContent = 'Login failed. Incorrect username or password.';
+                errorDiv.style.display = 'block';
             }
         } catch (err) {
             console.error(err);
+            errorDiv.textContent = 'An error occurred. Please try again.';
+            errorDiv.style.display = 'block';
         }
     });
 }
