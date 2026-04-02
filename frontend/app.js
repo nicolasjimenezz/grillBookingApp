@@ -1,3 +1,5 @@
+import {fetchUserData} from "./src/apiService.js"
+
 const API_BASE_KEY = 'booking_app_api_url';
 let API_BASE = localStorage.getItem(API_BASE_KEY) || 'http://localhost:5000';
 
@@ -37,59 +39,23 @@ window.changeApiUrl = async () => {
 
 async function checkAuth() {
     try {
-        const res = await fetch(`${API_BASE}/me`, { credentials: 'include' });
-        if (res.ok) {
-            currentUser = await res.json();
+        // 1. Ask the service for data
+        const data = await fetchUserData(); 
+
+        if (data) {
+            // 2. If we got data, the user is logged in
+            currentUser = data;
             renderHeader();
             showMainContent();
             loadBookings();
         } else {
+            // 3. If data is null (401), show the login form
             renderLoginForm();
         }
     } catch (err) {
-        console.error('Auth check failed', err);
-        const authSection = document.getElementById('auth-section');
-        const existingError = document.getElementById('connection-error');
-        if (existingError) existingError.remove();
-
-        const errorMsg = document.createElement('div');
-        errorMsg.id = 'connection-error';
-        errorMsg.style.cssText = 'background:#fff5f5; color:#c53030; padding:20px; margin:15px; border-radius:12px; font-size:14px; border:1px solid #feb2b2; line-height:1.6; box-shadow:0 4px 6px rgba(0,0,0,0.05);';
-        
-        const isIframe = window.self !== window.top;
-        
-        errorMsg.innerHTML = `
-            <div style="background:#fff5f5; border:2px solid #c53030; padding:25px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                <div style="display:flex; align-items:center; margin-bottom:15px;">
-                    <span style="font-size:32px; margin-right:15px;">🛑</span>
-                    <strong style="font-size:20px; color:#c53030;">Connection Blocked</strong>
-                </div>
-                
-                <p style="font-size:16px; margin-bottom:20px; color:#4a5568;">
-                    The app cannot reach your local backend at <code style="background:#edf2f7; padding:2px 6px; border-radius:4px;">${API_BASE}</code>.
-                </p>
-                
-                <div style="background:#ebf8ff; padding:20px; border-radius:12px; border:1px solid #bee3f8; margin-bottom:20px;">
-                    <strong style="color:#2b6cb0; font-size:16px;">Step 1: The "Magic" Fix</strong><br>
-                    <p style="margin:10px 0; color:#2c5282;">Browsers block local connections inside this preview window. Opening the app in its own tab fixes this 100% of the time.</p>
-                    <button onclick="window.open(window.location.href, '_blank')" style="background:#3182ce; color:white; border:none; padding:12px 24px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:16px; width:100%; box-shadow:0 4px 6px rgba(49,130,206,0.3);">🚀 Open App in New Tab</button>
-                </div>
-
-                <div style="background:#f7fafc; padding:15px; border-radius:10px; border:1px solid #e2e8f0; font-size:13px; color:#4a5568;">
-                    <strong>Step 2: Verify Backend is Running</strong><br>
-                    1. Ensure your terminal says <code>Now listening on: ${API_BASE}</code>.<br>
-                    2. Visit <a href="${API_BASE}/" target="_blank" style="color:#c53030; font-weight:bold; text-decoration:underline;">this link</a>. If you don't see "API is running!", your backend is not started.
-                </div>
-                
-                <div style="margin-top:20px; display:flex; gap:10px;">
-                    <button onclick="testConnection()" style="flex:1; background:white; color:#4a5568; border:1px solid #cbd5e0; padding:8px; border-radius:6px; cursor:pointer; font-size:12px;">Run Diagnostics</button>
-                    <button onclick="changeApiUrl()" style="flex:1; background:white; color:#4a5568; border:1px solid #cbd5e0; padding:8px; border-radius:6px; cursor:pointer; font-size:12px;">Change API URL</button>
-                </div>
-                <div id="diagnostic-result" style="margin-top:15px; font-family:monospace; font-size:12px; display:none; background:white; padding:12px; border-radius:8px; border:1px solid #e2e8f0;"></div>
-            </div>
-        `;
-        authSection.prepend(errorMsg);
-        renderLoginForm(true);
+        // 4. If there was a real network error, show your error UI
+        console.error('Connection failed', err);
+        showConnectionError(); // You can move that big HTML block into this function
     }
 }
 
