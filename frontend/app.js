@@ -1,4 +1,6 @@
-import {fetchUserData} from "./src/apiService.js"
+import * as authService from './src/authService.js';
+import * as userService from './src/userService.js';
+import * as bookingService from './src/bookingService.js';
 
 const API_BASE_KEY = 'booking_app_api_url';
 let API_BASE = localStorage.getItem(API_BASE_KEY) || 'http://localhost:5000';
@@ -39,23 +41,18 @@ window.changeApiUrl = async () => {
 
 async function checkAuth() {
     try {
-        // 1. Ask the service for data
-        const data = await fetchUserData(); 
-
+        const data = await authService.fetchMe();
         if (data) {
-            // 2. If we got data, the user is logged in
             currentUser = data;
             renderHeader();
             showMainContent();
             loadBookings();
         } else {
-            // 3. If data is null (401), show the login form
             renderLoginForm();
         }
     } catch (err) {
-        // 4. If there was a real network error, show your error UI
-        console.error('Connection failed', err);
-        showConnectionError(); // You can move that big HTML block into this function
+        console.error('Auth check failed', err);
+        // Show your connection error UI here
     }
 }
 
@@ -66,13 +63,11 @@ window.testConnection = async () => {
     
     try {
         // Test 1: Basic Reachability
-        const start = Date.now();
-        await fetch(`${API_BASE}/`, { mode: 'no-cors' });
-        const duration = Date.now() - start;
+        const duration = await authService.testReachability();
         
         // Test 2: CORS/Credentials Check
         try {
-            const corsRes = await fetch(`${API_BASE}/`, { credentials: 'include' });
+            await authService.testCors();
             resultDiv.innerHTML = `✅ <strong>Success!</strong> Reached backend in ${duration}ms.<br>
                                    ✅ <strong>CORS:</strong> Backend is configured correctly.<br><br>
                                    <strong>Next:</strong> If you still can't log in, ensure you are using the correct credentials (admin1 / Admin123!).`;
@@ -129,12 +124,7 @@ function renderLoginForm(keepExisting = false) {
         errorDiv.style.display = 'none';
         
         try {
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password }),
-                credentials: 'include'
-            });
+            const res = await authService.login(username, password);
             if (res.ok) {
                 checkAuth();
             } else {
@@ -150,7 +140,7 @@ function renderLoginForm(keepExisting = false) {
 }
 
 async function logout() {
-    await fetch(`${API_BASE}/auth/logout`, { method: 'POST', credentials: 'include' });
+    await authService.logout();
     currentUser = null;
     document.getElementById('auth-section').innerHTML = '';
     renderLoginForm();
@@ -168,41 +158,38 @@ function showMainContent() {
 
 async function loadUsersForAdmin() {
     try {
-        const res = await fetch(`${API_BASE}/users`, { credentials: 'include' });
-        if (res.ok) {
-            const users = await res.json();
-            
-            // Update reset password dropdown
-            const select = document.getElementById('reset-user-select');
-            const currentValue = select.value;
-            select.innerHTML = '<option value="">Select User...</option>';
-            users.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id;
-                opt.textContent = `${u.fullName} (${u.username})`;
-                select.appendChild(opt);
-            });
-            select.value = currentValue;
+        const users = await userService.fetchUsers();
+        
+        // Update reset password dropdown
+        const select = document.getElementById('reset-user-select');
+        const currentValue = select.value;
+        select.innerHTML = '<option value="">Select User...</option>';
+        users.forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.id;
+            opt.textContent = `${u.fullName} (${u.username})`;
+            select.appendChild(opt);
+        });
+        select.value = currentValue;
 
-            // Update manage users table
-            const tbody = document.getElementById('users-tbody');
-            tbody.innerHTML = '';
-            users.forEach(u => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${u.fullName}</td>
-                    <td>${u.apartmentCode}</td>
-                    <td>${u.username}</td>
-                    <td style="color: ${u.isActive ? 'green' : 'red'}">${u.isActive ? 'Active' : 'Disabled'}</td>
-                    <td>
-                        <button onclick="toggleUserStatus(${u.id}, ${u.isActive})">
-                            ${u.isActive ? 'Disable' : 'Enable'}
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+        // Update manage users table
+        const tbody = document.getElementById('users-tbody');
+        tbody.innerHTML = '';
+        users.forEach(u => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${u.fullName}</td>
+                <td>${u.apartmentCode}</td>
+                <td>${u.username}</td>
+                <td style="color: ${u.isActive ? 'green' : 'red'}">${u.isActive ? 'Active' : 'Disabled'}</td>
+                <td>
+                    <button onclick="toggleUserStatus(${u.id}, ${u.isActive})">
+                        ${u.isActive ? 'Disable' : 'Enable'}
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     } catch (err) {
         console.error('Failed to load users', err);
     }
@@ -214,17 +201,8 @@ window.toggleUserStatus = async (userId, currentStatus) => {
     if (!confirmed) return;
 
     try {
-        const res = await fetch(`${API_BASE}/users/${userId}/toggle-status`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-
-        if (res.ok) {
-            loadUsersForAdmin();
-        } else {
-            const err = await res.json();
-            showModal(`Failed to toggle status: ${err.message}`);
-        }
+        const res = await userService.toggleStatus(userId);
+        loadUsersForAdmin();
     } catch (err) {
         console.error(err);
         showModal('An error occurred while toggling user status.');
@@ -250,12 +228,7 @@ function setupEventListeners() {
         const password = document.getElementById('new-password').value;
         const role = parseInt(document.getElementById('new-role').value);
 
-        const res = await fetch(`${API_BASE}/users`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fullName, apartmentCode, username, password, role }),
-            credentials: 'include'
-        });
+        const res = await userService.createUser({ fullName, apartmentCode, username, password, role });
 
         const msgDiv = document.getElementById('create-user-msg');
         if (res.ok) {
@@ -280,12 +253,7 @@ function setupEventListeners() {
         const userId = parseInt(document.getElementById('reset-user-select').value);
         const newPassword = document.getElementById('reset-new-password').value;
 
-        const res = await fetch(`${API_BASE}/users/reset-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, newPassword }),
-            credentials: 'include'
-        });
+        const res = await userService.resetPassword(userId, newPassword);
 
         const msgDiv = document.getElementById('reset-password-msg');
         if (res.ok) {
@@ -313,11 +281,8 @@ async function loadBookings() {
     document.getElementById('current-month-display').textContent = currentViewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
 
     try {
-        const res = await fetch(`${API_BASE}/bookings?month=${monthStr}`, { credentials: 'include' });
-        if (res.ok) {
-            const bookings = await res.json();
-            renderCalendar(year, month, bookings);
-        }
+        const bookings = await bookingService.fetchBookings(monthStr);
+        renderCalendar(year, month, bookings);
     } catch (err) {
         console.error('Failed to load bookings', err);
     }
@@ -449,15 +414,7 @@ function showModal(message, type = 'alert', defaultValue = '') {
 
 async function createBooking(date, timeSlot) {
     try {
-        let url = `${API_BASE}/bookings`;
-        let body = { date, timeSlot };
-
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            credentials: 'include'
-        });
+        const res = await bookingService.createBooking(date, timeSlot);
 
         if (res.ok) {
             loadBookings();
@@ -476,10 +433,7 @@ async function cancelBooking(id) {
     if (!confirmed) return;
     
     try {
-        const res = await fetch(`${API_BASE}/bookings/${id}/cancel`, {
-            method: 'POST',
-            credentials: 'include'
-        });
+        const res = await bookingService.cancelBooking(id);
 
         if (res.ok) {
             loadBookings();
