@@ -17,27 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     checkAuth();
     setupEventListeners();
-    renderApiConfig();
 });
-
-function renderApiConfig() {
-    const configDiv = document.createElement('div');
-    configDiv.id = 'api-config';
-    configDiv.style.cssText = 'position:fixed; bottom:10px; right:10px; font-size:10px; color:#666; background:rgba(255,255,255,0.8); padding:5px; border-radius:4px; border:1px solid #ddd; z-index:1000;';
-    configDiv.innerHTML = `
-        API: <span id="api-url-display">${API_BASE}</span>
-        <button onclick="changeApiUrl()" style="padding:2px 5px; font-size:9px; margin-left:5px;">Change</button>
-    `;
-    document.body.appendChild(configDiv);
-}
-
-window.changeApiUrl = async () => {
-    const newUrl = await showModal('Enter your local API URL (e.g., https://localhost:5001):', 'prompt', API_BASE);
-    if (newUrl) {
-        localStorage.setItem(API_BASE_KEY, newUrl);
-        location.reload();
-    }
-};
 
 async function checkAuth() {
     try {
@@ -55,35 +35,6 @@ async function checkAuth() {
         // Show your connection error UI here
     }
 }
-
-window.testConnection = async () => {
-    const resultDiv = document.getElementById('diagnostic-result');
-    resultDiv.style.display = 'block';
-    resultDiv.innerHTML = '🔍 Running diagnostics...';
-    
-    try {
-        // Test 1: Basic Reachability
-        const duration = await authService.testReachability();
-        
-        // Test 2: CORS/Credentials Check
-        try {
-            await authService.testCors();
-            resultDiv.innerHTML = `✅ <strong>Success!</strong> Reached backend in ${duration}ms.<br>
-                                   ✅ <strong>CORS:</strong> Backend is configured correctly.<br><br>
-                                   <strong>Next:</strong> If you still can't log in, ensure you are using the correct credentials (admin1 / Admin123!).`;
-            resultDiv.style.color = '#2f855a';
-        } catch (corsErr) {
-            resultDiv.innerHTML = `⚠️ <strong>Partial Success:</strong> Reached backend, but CORS/Cookies are blocked.<br><br>
-                                   <strong>Fix:</strong> Click the <strong>Cookie icon</strong> in your browser's address bar and select <strong>"Allow third-party cookies"</strong> for this site.`;
-            resultDiv.style.color = '#c05621';
-        }
-    } catch (err) {
-        resultDiv.innerHTML = `❌ <strong>Failed:</strong> Connection refused.<br><br>
-            <strong>Cause:</strong> Browser does not trust the SSL certificate.<br>
-            <strong>Fix:</strong> Open <a href="${API_BASE}/" target="_blank" style="text-decoration:underline;">${API_BASE}/</a> and click "Advanced" &rarr; "Proceed".`;
-        resultDiv.style.color = '#c53030';
-    }
-};
 
 function renderHeader() {
     const authSection = document.getElementById('auth-section');

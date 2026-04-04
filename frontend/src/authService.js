@@ -23,13 +23,3 @@ export async function logout() {
         credentials: 'include' 
     });
 }
-
-export async function testReachability() {
-    const start = Date.now();
-    await fetch(`${API_BASE}/`, { mode: 'no-cors' });
-    return Date.now() - start;
-}
-
-export async function testCors() {
-    return await fetch(`${API_BASE}/`, { credentials: 'include' });
-}
