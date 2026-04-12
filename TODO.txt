@@ -21,6 +21,8 @@ Important mentions:
 __________________________________________________________________________________________
 
 Bugs to solve/features to add:
+-Always at the first time I log in it asks for my credentials. It saves credentials for the second time, but if I close the browser it automatically closes the session.
+I have to change the code to reflect this first path
 
 Features to add:
 -
