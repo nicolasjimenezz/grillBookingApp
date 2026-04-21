@@ -21,8 +21,7 @@ Important mentions:
 __________________________________________________________________________________________
 
 Bugs to solve/features to add:
--Always at the first time I log in it asks for my credentials. It saves credentials for the second time, but if I close the browser it automatically closes the session.
-I have to change the code to reflect this first path
+-
 
 Features to add:
 -
@@ -60,11 +59,3 @@ FluentValidation: For complex validation (like your apartment code regex), use F
 Environment Configuration: Move the API_BASE logic out of localStorage and into a proper .env configuration for the frontend.
 Shared Types: If you move to TypeScript on the frontend, you can share (or generate) type definitions between the C# backend and the JS/TS frontend to ensure they stay in sync.
 Unit Testing: Start adding tests for your backend Services and frontend utility functions. This ensures that adding new features (like the "Disable User" feature) doesn't break existing ones.
-
-
-__________________________________________________________________________________________
-
-Before launching project:
-Delete metadata.json
-    .env.example
-    package-lock.json
