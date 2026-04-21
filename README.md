@@ -1,4 +1,4 @@
-# BookingApp MVP
+# grillBookingApp MVP
 
 This project contains a full-stack application built with C# ASP.NET Core Web API and a Vanilla JS frontend.
 
