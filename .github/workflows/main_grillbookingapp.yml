@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - grillBookingApp
 
 on:
@@ -13,47 +10,62 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
+      # STEP 1: Set up Node.js (needed for the frontend)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # STEP 2: Build the Frontend (this populates backend/wwwroot)
+      - name: Install Frontend Dependencies and Build
+        run: |
+          npm install
+          npm run build
+
+      # STEP 3: Set up .NET
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
 
+      # STEP 4: Build the Backend (Pointing explicitly to the /backend folder)
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build backend/BookingApp.API.csproj --configuration Release
 
+      # STEP 5: Publish the Backend
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish backend/BookingApp.API.csproj -c Release -o ${{ github.workspace }}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ${{ github.workspace }}/myapp
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v4
+        uses: azure/download-artifact@v4
         with:
           name: .net-app
       
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_990588844FB1458EAE1A7AD3A2C837DE }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_50B15E2D2DA74962856DA2F176A0E619 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_AD0743144A8647F5A6757BA01081D2C2 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_67F24AC2A8E64410B2283F64BA53A940 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_27537EA577494061B0D6F491C157BCFC }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FFA137C6D6B943D2ADCD768A25D2A5DF }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -62,4 +74,3 @@ jobs:
           app-name: 'grillBookingApp'
           slot-name: 'Production'
           package: .
-          
