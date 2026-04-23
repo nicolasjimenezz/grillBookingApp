@@ -38,48 +38,93 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<BookingService>();
 
+builder.WebHost.UseUrls("http://0.0.0.0:3000");
+
+// Check connection string on startup
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    Console.WriteLine("CRITICAL: DefaultConnection connection string is missing!");
+}
+else
+{
+    Console.WriteLine($"INFRA: Using connection string (starts with): {connectionString.Substring(0, Math.Min(connectionString.Length, 20))}...");
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.SetIsOriginAllowed(origin => true) // Allow any origin for development/testing
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        
+        if (allowedOrigins != null && allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
+        else
+        {
+            policy.SetIsOriginAllowed(origin => true) // Allow any origin for development/testing if none specified
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        }
     });
 });
 
 var app = builder.Build();
 
 // Ensure database is created and seeded
-using (var scope = app.Services.CreateScope())
+try
 {
-    var context = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
-
-    // If RESET_DB is set to "true", delete the database before creating it
-    if (builder.Configuration["RESET_DB"] == "true")
+    using (var scope = app.Services.CreateScope())
     {
-        context.Database.EnsureDeleted();
+        var context = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
+        
+        // If RESET_DB is set to "true", delete the database before creating it
+        if (builder.Configuration["RESET_DB"] == "true")
+        {
+            context.Database.EnsureDeleted();
+        }
+        
+        context.Database.EnsureCreated();
     }
-
-    context.Database.EnsureCreated();
+}
+catch (Exception ex)
+{
+    // Log the error but don't crash the app on startup to allow Cloud Run health checks to pass
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred during database initialization.");
 }
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("/", () => "API is running!");
+app.UseRouting();
+
+// CORS must be after UseRouting and before UseAuthorization
+app.UseCors();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 // Bypass "Private Network Access" browser security for localhost
 app.Use((context, next) =>
 {
-    context.Response.Headers.Append("Access-Control-Allow-Private-Network", "true");
+    if (context.Request.Headers.ContainsKey("Access-Control-Request-Private-Network"))
+    {
+        context.Response.Headers.Append("Access-Control-Allow-Private-Network", "true");
+    }
     return next();
 });
 
-app.UseCors();
-app.UseAuthentication();
-app.UseAuthorization();
+app.MapGet("/health", () => "OK");
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 
 app.Run();

@@ -2,13 +2,20 @@
   "name": "booking-app-root",
   "private": true,
   "version": "1.0.0",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
     "dev": "npm run dev --prefix frontend",
-    "build": "npm run build --prefix frontend",
-    "preview": "npm run preview --prefix frontend",
+    "build": "npm run build --prefix frontend && rm -rf dist && mkdir -p dist && cp -r frontend/dist/* dist/ && mkdir -p backend/wwwroot && cp -r frontend/dist/* backend/wwwroot/",
+    "start": "cd backend && dotnet run --urls http://0.0.0.0:3000",
+    "preview": "cd backend && dotnet run --urls http://0.0.0.0:3000",
     "lint": "npm run lint --prefix frontend"
   },
   "dependencies": {
-    "vite": "^8.0.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.2"
   }
 }

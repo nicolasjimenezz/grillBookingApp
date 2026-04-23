@@ -1,5 +1,5 @@
 const API_BASE_KEY = 'booking_app_api_url';
-const API_BASE = localStorage.getItem(API_BASE_KEY) || 'http://localhost:5000';
+const API_BASE = localStorage.getItem(API_BASE_KEY) || '';
 
 export async function fetchUsers() {
     const res = await fetch(`${API_BASE}/users`, { credentials: 'include' });
