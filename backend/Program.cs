@@ -38,7 +38,11 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<BookingService>();
 
-builder.WebHost.UseUrls("http://0.0.0.0:3000");
+// Determine the port: Default to 3000 for AI Studio, but allow environment override for Azure
+var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+Console.WriteLine($"INFRA: Startup starting on port {port}...");
 
 // Check connection string on startup
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -48,7 +52,7 @@ if (string.IsNullOrEmpty(connectionString))
 }
 else
 {
-    Console.WriteLine($"INFRA: Using connection string (starts with): {connectionString.Substring(0, Math.Min(connectionString.Length, 20))}...");
+    Console.WriteLine($"INFRA: Using connection string (starts with): {connectionString.Substring(0, Math.Min(connectionString.Length, 15))}...");
 }
 
 builder.Services.AddCors(options =>
