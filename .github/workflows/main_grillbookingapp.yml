@@ -1,0 +1,76 @@
+name: Build and deploy ASP.Net Core app to Azure Web App - grillBookingApp
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # STEP 1: Set up Node.js (needed for the frontend)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # STEP 2: Build the Frontend (this populates backend/wwwroot)
+      - name: Install Frontend Dependencies and Build
+        run: |
+          npm install
+          npm run build
+
+      # STEP 3: Set up .NET
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      # STEP 4: Build the Backend (Pointing explicitly to the /backend folder)
+      - name: Build with dotnet
+        run: dotnet build backend/BookingApp.API.csproj --configuration Release
+
+      # STEP 5: Publish the Backend
+      - name: dotnet publish
+        run: dotnet publish backend/BookingApp.API.csproj -c Release -o ${{ github.workspace }}/myapp
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-app
+          path: ${{ github.workspace }}/myapp
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+      
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_67F24AC2A8E64410B2283F64BA53A940 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_27537EA577494061B0D6F491C157BCFC }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FFA137C6D6B943D2ADCD768A25D2A5DF }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'grillBookingApp'
+          slot-name: 'Production'
+          package: .
