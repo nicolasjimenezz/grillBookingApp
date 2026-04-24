@@ -39,13 +39,13 @@ jobs:
 
       # STEP 5: Publish the Backend
       - name: dotnet publish
-        run: dotnet publish backend/BookingApp.API.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish backend/BookingApp.API.csproj -c Release -o ./publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{ github.workspace }}/myapp
+          path: ./publish
 
   deploy:
     runs-on: ubuntu-latest
@@ -59,6 +59,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+          path: .
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -68,7 +69,6 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FFA137C6D6B943D2ADCD768A25D2A5DF }}
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'grillBookingApp'
