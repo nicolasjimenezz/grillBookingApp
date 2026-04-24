@@ -71,13 +71,15 @@ function renderLoginForm(keepExisting = false) {
                 checkAuth();
             } else {
                 let message = 'Login failed. Incorrect username or password.';
+                let detail = '';
                 try {
                     const data = await res.json();
                     if (data && data.message) message = data.message;
+                    if (data && data.detail) detail = data.detail;
                 } catch (e) {
                     // Fallback if not JSON
                 }
-                errorDiv.textContent = message;
+                errorDiv.innerHTML = `<div>${message}</div>${detail ? `<div style="font-size: 0.8rem; margin-top: 5px; color: #666;">Technical Detail: ${detail}</div>` : ''}`;
                 errorDiv.style.display = 'block';
             }
         } catch (err) {
