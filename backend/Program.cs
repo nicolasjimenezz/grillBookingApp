@@ -83,6 +83,7 @@ var app = builder.Build();
 // Ensure database is created and seeded
 try
 {
+    Console.WriteLine("INFRA: Attempting to initialize database...");
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
@@ -90,15 +91,37 @@ try
         // If RESET_DB is set to "true", delete the database before creating it
         if (builder.Configuration["RESET_DB"] == "true")
         {
+            Console.WriteLine("INFRA: RESET_DB is true. Deleting existing database...");
             context.Database.EnsureDeleted();
         }
         
-        context.Database.EnsureCreated();
+        var created = context.Database.EnsureCreated();
+        if (created)
+        {
+            Console.WriteLine("INFRA: Database was created successfully.");
+        }
+        else
+        {
+            Console.WriteLine("INFRA: Database already exists.");
+        }
+
+        // Test connection
+        if (context.Database.CanConnect())
+        {
+            Console.WriteLine("INFRA: Successfully connected to database!");
+        }
+        else
+        {
+            Console.WriteLine("INFRA: WARNING: Database connection failed during startup test.");
+        }
     }
 }
 catch (Exception ex)
 {
-    // Log the error but don't crash the app on startup to allow Cloud Run health checks to pass
+    // Log the error loudly to console for Log Stream
+    Console.WriteLine($"INFRA: CRITICAL ERROR during database initialization: {ex.Message}");
+    if (ex.InnerException != null) Console.WriteLine($"INFRA: Inner Exception: {ex.InnerException.Message}");
+    
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred during database initialization.");
 }
