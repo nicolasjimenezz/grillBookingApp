@@ -24,22 +24,38 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var user = await _authService.AuthenticateAsync(request.Username, request.Password);
-        if (user == null) return Unauthorized(new { message = "Invalid credentials" });
-
-        var claims = new List<Claim>
+        try
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
-        };
+            var user = await _authService.AuthenticateAsync(request.Username, request.Password);
+            if (user == null) return Unauthorized(new { message = "Invalid credentials" });
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
+            };
 
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
 
-        return Ok(new { message = "Logged in successfully" });
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            return Ok(new { message = "Logged in successfully" });
+        }
+        catch (Exception ex)
+        {
+            var detail = ex.Message;
+            if (ex.InnerException != null) detail += $" Inner: {ex.InnerException.Message}";
+            
+            Console.WriteLine($"INFRA: Global error in Login: {ex.Message}");
+            if (ex.InnerException != null) Console.WriteLine($"INFRA: Inner error: {ex.InnerException.Message}");
+            
+            return StatusCode(500, new { 
+                message = "Backend error. Usually a database connection issue. Check your connection string and SQL server firewall.",
+                detail = detail
+            });
+        }
     }
 
     [HttpPost("logout")]
