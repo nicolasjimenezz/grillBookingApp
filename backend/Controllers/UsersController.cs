@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookingApp.API.Controllers;
 
 [ApiController]
-[Route("users")]
+[Route("api/users")]
 [Authorize(Roles = "Admin")]
 public class UsersController : ControllerBase
 {

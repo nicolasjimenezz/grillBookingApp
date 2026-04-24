@@ -103,8 +103,14 @@ catch (Exception ex)
     logger.LogError(ex, "An error occurred during database initialization.");
 }
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseRouting();
 
@@ -113,9 +119,6 @@ app.UseCors();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseDefaultFiles();
-app.UseStaticFiles();
 
 // Bypass "Private Network Access" browser security for localhost
 app.Use((context, next) =>
@@ -129,6 +132,8 @@ app.Use((context, next) =>
 
 app.MapGet("/health", () => "OK");
 app.MapControllers();
+
+// Only fallback if the request is not for the API
 app.MapFallbackToFile("index.html");
 
 app.Run();

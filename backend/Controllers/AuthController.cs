@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookingApp.API.Controllers;
 
 [ApiController]
-[Route("auth")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly AuthService _authService;
@@ -50,7 +50,7 @@ public class AuthController : ControllerBase
         return Ok(new { message = "Logged out successfully" });
     }
 
-    [HttpGet("/me")]
+    [HttpGet("me")]
     [Authorize]
     public async Task<IActionResult> GetMe()
     {

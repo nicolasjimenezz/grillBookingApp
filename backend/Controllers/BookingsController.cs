@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BookingApp.API.Controllers;
 
 [ApiController]
-[Route("bookings")]
+[Route("api/bookings")]
 [Authorize]
 public class BookingsController : ControllerBase
 {

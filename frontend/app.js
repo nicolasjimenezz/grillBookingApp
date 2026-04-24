@@ -2,19 +2,10 @@ import * as authService from './src/authService.js';
 import * as userService from './src/userService.js';
 import * as bookingService from './src/bookingService.js';
 
-const API_BASE_KEY = 'booking_app_api_url';
-let API_BASE = localStorage.getItem(API_BASE_KEY) || 'http://localhost:5000';
-
 let currentUser = null;
 let currentViewDate = new Date(); // Using local time for view
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Migration: If user has the old default stored, update it to the new one
-    if (localStorage.getItem(API_BASE_KEY) === 'https://localhost:5001') {
-        localStorage.setItem(API_BASE_KEY, 'http://localhost:5000');
-        API_BASE = 'http://localhost:5000';
-    }
-
     checkAuth();
     setupEventListeners();
 });
