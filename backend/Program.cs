@@ -131,6 +131,24 @@ try
             Console.WriteLine("INFRA: Database already exists.");
         }
 
+        // Manual seeding/syncing of admin password from environment
+        var adminPassword = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
+        if (!string.IsNullOrEmpty(adminPassword))
+        {
+            var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin1");
+            if (adminUser != null)
+            {
+                var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<BookingApp.API.Data.Entities.User>();
+                adminUser.PasswordHash = hasher.HashPassword(adminUser, adminPassword);
+                context.SaveChanges();
+                Console.WriteLine("INFRA: Synced 'admin1' password from INITIAL_ADMIN_PASSWORD environment variable.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("INFRA: INITIAL_ADMIN_PASSWORD not found in config, using existing or fallback.");
+        }
+
         // Test connection
         if (context.Database.CanConnect())
         {
