@@ -55,6 +55,28 @@ else
     Console.WriteLine($"INFRA: Using connection string (starts with): {connectionString.Substring(0, Math.Min(connectionString.Length, 15))}...");
 }
 
+// Check for admin/user passwords in config
+var adminPass = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
+var userPass = builder.Configuration["INITIAL_USER_PASSWORD"];
+
+if (string.IsNullOrEmpty(adminPass))
+{
+    Console.WriteLine("INFRA: INITIAL_ADMIN_PASSWORD is NOT set. Will fallback to default.");
+}
+else
+{
+    Console.WriteLine($"INFRA: INITIAL_ADMIN_PASSWORD is set (length: {adminPass.Length}).");
+}
+
+if (string.IsNullOrEmpty(userPass))
+{
+    Console.WriteLine("INFRA: INITIAL_USER_PASSWORD is NOT set. Will fallback to default.");
+}
+else
+{
+    Console.WriteLine($"INFRA: INITIAL_USER_PASSWORD is set (length: {userPass.Length}).");
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -89,10 +111,14 @@ try
         var context = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
         
         // If RESET_DB is set to "true", delete the database before creating it
-        if (builder.Configuration["RESET_DB"] == "true")
+        var resetDb = builder.Configuration["RESET_DB"];
+        Console.WriteLine($"INFRA: RESET_DB value from config: '{resetDb}'");
+        
+        if (resetDb == "true")
         {
             Console.WriteLine("INFRA: RESET_DB is true. Deleting existing database...");
-            context.Database.EnsureDeleted();
+            bool deleted = context.Database.EnsureDeleted();
+            Console.WriteLine($"INFRA: Database deletion result: {deleted}");
         }
         
         var created = context.Database.EnsureCreated();
