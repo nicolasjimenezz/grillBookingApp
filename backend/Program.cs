@@ -135,7 +135,7 @@ try
         var adminPassword = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
         if (!string.IsNullOrEmpty(adminPassword))
         {
-            var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin1");
+            var adminUser = context.Users.FirstOrDefault(u => u.Username == "Admin1");
             if (adminUser != null)
             {
                 var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<BookingApp.API.Data.Entities.User>();
