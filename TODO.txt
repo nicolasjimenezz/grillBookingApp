@@ -21,41 +21,21 @@ Important mentions:
 __________________________________________________________________________________________
 
 Bugs to solve/features to add:
--
+-Review mobile view (android and iOS mobile is not as good as the desktop version)
 
 Features to add:
--
+-Add favicon
+-Add a button to show the password entered (on both, main login screen and on the user creation screen)
 
 Things to do
 -Clean up the HTML, CSS and JS code, order/organize it.
--Show this to a non-tech person to ensure it is easy to user
--Review the whole picture
+-Show this to a non-tech person to ensure it is easy to user. Done!
+
 
 Ideas:
 Long-term:
 -
 
 
-__________________________________________________________________________________________
+_________________________________________________________________________________________
 
-
-
-Code improvements:
-1. Frontend: Modularization
-Currently, app.js is a "God Object" that handles everything: API calls, DOM manipulation, state management, and business logic.
-Split by Responsibility: Create a services/ folder for API calls (e.g., apiService.js), a components/ folder for UI logic (e.g., calendar.js, adminPanel.js), and a utils/ folder for helper functions.
-State Management: Instead of global variables like currentUser, implement a simple state store that notifies parts of the app when data changes.
-Adopt TypeScript: Converting your .js files to .ts would provide immediate benefits in catching errors during development, especially when dealing with API responses.
-Tailwind CSS: Instead of a single large style.css, using Tailwind utility classes would make your styling more maintainable and responsive without writing custom CSS for every new element.
-
-2. Backend: Pattern Refinement
-Your backend is already off to a good start with a clear separation of Controllers, Services, and Entities.
-DTO Organization: Move your DTOs into separate files (e.g., UserDtos.cs, BookingDtos.cs) instead of having them all in one file. This makes navigation much easier as the project grows.
-AutoMapper: Use a library like AutoMapper to handle the conversion between Entities and DTOs. This removes the "boilerplate" mapping code from your Services.
-Global Exception Handling: Implement a middleware to catch all exceptions and return a standardized JSON error format. This simplifies your controllers by removing repetitive try-catch blocks.
-FluentValidation: For complex validation (like your apartment code regex), use FluentValidation. It keeps your DTOs clean and centralizes validation logic.
-3. Project-Wide Improvements
-
-Environment Configuration: Move the API_BASE logic out of localStorage and into a proper .env configuration for the frontend.
-Shared Types: If you move to TypeScript on the frontend, you can share (or generate) type definitions between the C# backend and the JS/TS frontend to ensure they stay in sync.
-Unit Testing: Start adding tests for your backend Services and frontend utility functions. This ensures that adding new features (like the "Disable User" feature) doesn't break existing ones.
