@@ -57,6 +57,7 @@ else
 
 // Check for admin/user passwords in config
 var adminPass = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
+Console.log(builder.Configuration["INITIAL_ADMIN_PASSWORD"]);
 var userPass = builder.Configuration["INITIAL_USER_PASSWORD"];
 
 if (string.IsNullOrEmpty(adminPass))
@@ -135,7 +136,7 @@ try
         var adminPassword = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
         if (!string.IsNullOrEmpty(adminPassword))
         {
-            var adminUser = context.Users.FirstOrDefault(u => u.Username == "Admin1");
+            var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin1");
             if (adminUser != null)
             {
                 var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<BookingApp.API.Data.Entities.User>();
