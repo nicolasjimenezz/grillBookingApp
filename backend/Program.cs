@@ -1,4 +1,5 @@
 using BookingApp.API.Data;
+using BookingApp.API.Data.Enums;
 using BookingApp.API.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -57,25 +58,28 @@ else
 
 // Check for admin/user passwords in config
 var adminPass = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
-Console.log(builder.Configuration["INITIAL_ADMIN_PASSWORD"]);
 var userPass = builder.Configuration["INITIAL_USER_PASSWORD"];
+
+// Debug: Print environment variables to help user (sanitized)
+Console.WriteLine("INFRA DEBUG: --- Environment Variable Check ---");
+var allEnv = Environment.GetEnvironmentVariables();
+foreach (string key in allEnv.Keys)
+{
+    if (key.Contains("INITIAL") || key.Contains("ADMIN") || key.Contains("RESET"))
+    {
+        var val = allEnv[key]?.ToString();
+        var displayVal = string.IsNullOrEmpty(val) ? "[EMPTY]" : (val.Length > 2 ? $"{val.Substring(0, 1)}...{val.Substring(val.Length - 1)}" : "[HIDDEN]");
+        Console.WriteLine($"INFRA DEBUG: Env Key: {key} (Found: {!string.IsNullOrEmpty(val)})");
+    }
+}
 
 if (string.IsNullOrEmpty(adminPass))
 {
-    Console.WriteLine("INFRA: INITIAL_ADMIN_PASSWORD is NOT set. Will fallback to default.");
+    Console.WriteLine("INFRA: INITIAL_ADMIN_PASSWORD is NOT found in builder.Configuration.");
 }
 else
 {
-    Console.WriteLine($"INFRA: INITIAL_ADMIN_PASSWORD is set (length: {adminPass.Length}).");
-}
-
-if (string.IsNullOrEmpty(userPass))
-{
-    Console.WriteLine("INFRA: INITIAL_USER_PASSWORD is NOT set. Will fallback to default.");
-}
-else
-{
-    Console.WriteLine($"INFRA: INITIAL_USER_PASSWORD is set (length: {userPass.Length}).");
+    Console.WriteLine($"INFRA: INITIAL_ADMIN_PASSWORD found in config (length: {adminPass.Length}).");
 }
 
 builder.Services.AddCors(options =>
@@ -83,7 +87,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',', StringSplitOptions.RemoveEmptyEntries);
-        
+
         if (allowedOrigins != null && allowedOrigins.Length > 0)
         {
             policy.WithOrigins(allowedOrigins)
@@ -110,18 +114,18 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
-        
+
         // If RESET_DB is set to "true", delete the database before creating it
         var resetDb = builder.Configuration["RESET_DB"];
         Console.WriteLine($"INFRA: RESET_DB value from config: '{resetDb}'");
-        
+
         if (resetDb == "true")
         {
             Console.WriteLine("INFRA: RESET_DB is true. Deleting existing database...");
             bool deleted = context.Database.EnsureDeleted();
             Console.WriteLine($"INFRA: Database deletion result: {deleted}");
         }
-        
+
         var created = context.Database.EnsureCreated();
         if (created)
         {
@@ -132,22 +136,42 @@ try
             Console.WriteLine("INFRA: Database already exists.");
         }
 
-        // Manual seeding/syncing of admin password from environment
-        var adminPassword = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
-        if (!string.IsNullOrEmpty(adminPassword))
+        // Manual seeding/syncing of passwords from environment
+        var adminPasswordEnv = builder.Configuration["INITIAL_ADMIN_PASSWORD"];
+        var userPasswordEnv = builder.Configuration["INITIAL_USER_PASSWORD"];
+        var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<BookingApp.API.Data.Entities.User>();
+        bool syncedAny = false;
+
+        if (!string.IsNullOrEmpty(adminPasswordEnv))
         {
-            var adminUser = context.Users.FirstOrDefault(u => u.Username == "admin1");
-            if (adminUser != null)
+            var adminUsers = context.Users.Where(u => u.Role == BookingApp.API.Data.Enums.Role.Admin).ToList();
+            foreach (var boss in adminUsers)
             {
-                var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<BookingApp.API.Data.Entities.User>();
-                adminUser.PasswordHash = hasher.HashPassword(adminUser, adminPassword);
-                context.SaveChanges();
-                Console.WriteLine("INFRA: Synced 'admin1' password from INITIAL_ADMIN_PASSWORD environment variable.");
+                boss.PasswordHash = hasher.HashPassword(boss, adminPasswordEnv);
+                syncedAny = true;
+                Console.WriteLine($"INFRA: Synced password for admin user '{boss.Username}' from environment.");
             }
+        }
+
+        if (!string.IsNullOrEmpty(userPasswordEnv))
+        {
+            var testUser = context.Users.FirstOrDefault(u => u.Username == "user1");
+            if (testUser != null)
+            {
+                testUser.PasswordHash = hasher.HashPassword(testUser, userPasswordEnv);
+                syncedAny = true;
+                Console.WriteLine("INFRA: Synced password for 'user1' from environment.");
+            }
+        }
+
+        if (syncedAny)
+        {
+            context.SaveChanges();
+            Console.WriteLine("INFRA: Database updated with passwords from environment variables.");
         }
         else
         {
-            Console.WriteLine("INFRA: INITIAL_ADMIN_PASSWORD not found in config, using existing or fallback.");
+            Console.WriteLine("INFRA: No password sync performed (missing environment variables or users not found).");
         }
 
         // Test connection
@@ -166,7 +190,7 @@ catch (Exception ex)
     // Log the error loudly to console for Log Stream
     Console.WriteLine($"INFRA: CRITICAL ERROR during database initialization: {ex.Message}");
     if (ex.InnerException != null) Console.WriteLine($"INFRA: Inner Exception: {ex.InnerException.Message}");
-    
+
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred during database initialization.");
 }

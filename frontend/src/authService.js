@@ -1,11 +1,8 @@
 const API_BASE_KEY = 'booking_app_api_url';
 const getApiBase = () => {
-    const base = localStorage.getItem(API_BASE_KEY) || '';
-    // Security: Filter out suspicious bases
-    if (base && (base.includes('localhost') || base.includes('127.0.0.1'))) {
-        return '';
-    }
-    return base;
+    let base = localStorage.getItem(API_BASE_KEY);
+    if (!base || base === 'undefined') return '';
+    return base.endsWith('/') ? base.slice(0, -1) : base;
 };
 
 export async function fetchMe() {

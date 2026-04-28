@@ -23,8 +23,27 @@ async function checkAuth() {
         }
     } catch (err) {
         console.error('Auth check failed', err);
-        // Show your connection error UI here
+        showConnectionError();
     }
+}
+
+function showConnectionError() {
+    const authSection = document.getElementById('auth-section');
+    authSection.innerHTML = `
+        <div style="background: #fff5f5; border: 1px solid #feb2b2; padding: 15px; border-radius: 8px; color: #c53030; font-family: sans-serif; max-width: 300px; margin: 20px auto; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h4 style="margin: 0 0 10px 0;">Backend Unreachable</h4>
+            <p style="font-size: 0.85rem; line-height: 1.4;">The frontend cannot connect to your API. Make sure your local server is running on port 3000.</p>
+            <button id="set-api-btn" style="margin-top: 10px; cursor: pointer; background: #c53030; color: white; border: none; padding: 6px 12px; border-radius: 4px;">Update API URL</button>
+        </div>
+    `;
+    document.getElementById('set-api-btn').addEventListener('click', async () => {
+        const current = localStorage.getItem('booking_app_api_url') || 'http://localhost:3000';
+        const newUrl = await showModal('Enter Backend API URL (e.g., http://localhost:3000):', 'prompt', current);
+        if (newUrl !== false) {
+            localStorage.setItem('booking_app_api_url', newUrl);
+            window.location.reload();
+        }
+    });
 }
 
 function renderHeader() {
