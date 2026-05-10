@@ -1,9 +1,17 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f9;
     color: #333;
+}
+
+h2 {
+    text-align: center;
 }
 
 header {
@@ -29,11 +37,42 @@ form {
     margin-bottom: 2rem;
 }
 
+/* Horizontal login form layout */
+#login-form {
+    display: flex;
+    flex-wrap: nowrap; /* Prevents wrapping in the header */
+    align-items: center;
+    gap: 10px;
+}
+
+#login-form input[type="text"],
+#login-form .password-wrapper {
+    width: 180px;
+}
+
+/* Stacked forms (Admin Panel) should be full width */
+#admin-panel form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#admin-panel form input,
+#admin-panel form select,
+#admin-panel form .password-wrapper {
+    width: 100%;
+}
+
 input, select, button {
-    padding: 0.5rem;
-    margin: 0.5rem 0;
+    padding: 0.6rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.password-wrapper input {
+    width: 100% !important;
+    margin: 0 !important;
 }
 
 button {
@@ -54,11 +93,27 @@ button:hover {
     margin-bottom: 1rem;
 }
 
+/* Table Responsive Container */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
     background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-width: 600px; /* Force minimum width to ensure layout doesn't squash too much */
+}
+
+/* Mobile Tweak: Allow smaller tables to fit if they can, 
+   but ensure booking table is wide enough for interactions */
+#booking-table {
+    min-width: 800px;
 }
 
 th, td {
@@ -158,10 +213,42 @@ th {
     margin-top: 1rem;
 }
 
+@media (max-width: 600px) {
+    main {
+        padding: 1rem;
+    }
+    
+    header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    th, td {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.9rem;
+    }
+
+    .calendar-controls h2 {
+        font-size: 1.1rem;
+    }
+
+    .calendar-controls button {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    form, #manage-users-section {
+        padding: 1rem;
+    }
+}
+
 /* Password input with toggle */
 .password-wrapper {
     position: relative;
     display: inline-block;
+    vertical-align: middle;
 }
 
 .password-wrapper input[type="password"],
