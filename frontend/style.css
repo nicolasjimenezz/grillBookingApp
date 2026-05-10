@@ -158,7 +158,28 @@ th {
     margin-top: 1rem;
 }
 
-#users-table button {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.85rem;
+/* Password input with toggle */
+.password-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.password-wrapper input[type="password"],
+.password-wrapper input[type="text"] {
+    padding-right: 2.5rem;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    user-select: none;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.password-toggle:hover {
+    color: #333;
 }

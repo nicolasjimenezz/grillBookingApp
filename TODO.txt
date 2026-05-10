@@ -27,8 +27,8 @@ Features to add:
 -Add a button to show the password entered (on both, main login screen and on the user creation screen)
 
 Things to do
--Clean up the HTML, CSS and JS code, order/organize it.
--Show this to a non-tech person to ensure it is easy to user. Done!
+-Clean up the code, order/organize it, remove unused code/comments.
+-Show this to a non-tech person to ensure it is easy to understand for an user.
 
 
 Ideas:

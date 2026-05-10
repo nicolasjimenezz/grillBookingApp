@@ -24,7 +24,10 @@
                     <input type="text" id="new-fullname" placeholder="Full Name" required>
                     <input type="text" id="new-apt" placeholder="Apartment Code (e.g. 2A)" required pattern="\d+[A-Z]">
                     <input type="text" id="new-username" placeholder="Username" required>
-                    <input type="password" id="new-password" placeholder="Password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="new-password" placeholder="Password" required>
+                        <span id="toggle-new-password" class="password-toggle">👁️</span>
+                    </div>
                     <select id="new-role">
                         <option value="0">User</option>
                         <option value="1">Admin</option>
@@ -38,7 +41,10 @@
                     <select id="reset-user-select" required>
                         <option value="">Select User...</option>
                     </select>
-                    <input type="password" id="reset-new-password" placeholder="New Password" required>
+                    <div class="password-wrapper">
+                        <input type="password" id="reset-new-password" placeholder="New Password" required>
+                        <span id="toggle-reset-password" class="password-toggle">👁️</span>
+                    </div>
                     <button type="submit">Reset Password</button>
                     <div id="reset-password-msg"></div>
                 </form>

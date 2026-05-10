@@ -64,7 +64,10 @@ function renderLoginForm(keepExisting = false) {
     const formHtml = `
         <form id="login-form" style="margin:0; padding:0; box-shadow:none; background:transparent;">
             <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
+            <div class="password-wrapper">
+                <input type="password" id="password" placeholder="Password" required>
+                <span id="toggle-password" class="password-toggle">👁️</span>
+            </div>
             <button type="submit">Login</button>
             <div id="login-error" class="error-msg" style="display: none;"></div>
         </form>
@@ -77,6 +80,17 @@ function renderLoginForm(keepExisting = false) {
     } else {
         authSection.innerHTML = formHtml;
     }
+
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('toggle-password');
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+    }
+
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('username').value;
@@ -241,6 +255,21 @@ function setupEventListeners() {
             msgDiv.style.color = 'red';
         }
     });
+
+    // Admin Password Toggles
+    const setupToggle = (toggleId, inputId) => {
+        const toggle = document.getElementById(toggleId);
+        const input = document.getElementById(inputId);
+        if (toggle && input) {
+            toggle.addEventListener('click', () => {
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                toggle.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+            });
+        }
+    };
+    setupToggle('toggle-new-password', 'new-password');
+    setupToggle('toggle-reset-password', 'reset-new-password');
 }
 
 async function loadBookings() {
