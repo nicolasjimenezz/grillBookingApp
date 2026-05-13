@@ -40,7 +40,8 @@ form {
 /* Horizontal login form layout */
 #login-form {
     display: flex;
-    flex-wrap: nowrap; /* Prevents wrapping in the header */
+    flex-wrap: wrap; /* Allow wrapping to prevent overflow */
+    justify-content: center;
     align-items: center;
     gap: 10px;
 }
@@ -213,7 +214,7 @@ th {
     margin-top: 1rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 750px) {
     main {
         padding: 1rem;
     }
@@ -241,6 +242,19 @@ th {
 
     form, #manage-users-section {
         padding: 1rem;
+    }
+
+    #login-form {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    #login-form input[type="text"],
+    #login-form .password-wrapper,
+    #login-form button {
+        width: 100% !important;
     }
 }
 

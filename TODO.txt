@@ -21,14 +21,15 @@ Important mentions:
 __________________________________________________________________________________________
 
 Bugs to solve/features to add:
--Review mobile view (android and iOS mobile is not as good as the desktop version)
+-Review mobile view (android and iOS mobile is not as good as the desktop version). Done!
 
 Features to add:
--Add a button to show the password entered (on both, main login screen and on the user creation screen)
+-Add a button to show the password entered (on both, main login screen and on the user creation screen). Done!
 
 Things to do
 -Clean up the code, order/organize it, remove unused code/comments.
 -Show this to a non-tech person to ensure it is easy to understand for an user.
+-Review the code to ensure everything is easy to understand
 
 
 Ideas:
