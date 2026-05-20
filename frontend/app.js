@@ -83,12 +83,25 @@ function renderLoginForm(keepExisting = false) {
 
     const passwordInput = document.getElementById('password');
     const togglePassword = document.getElementById('toggle-password');
+    const usernameInput = document.getElementById('username');
+
+    const hidePassword = () => {
+        if (passwordInput && togglePassword) {
+            passwordInput.setAttribute('type', 'password');
+            togglePassword.textContent = '👁️';
+        }
+    };
+
     if (togglePassword && passwordInput) {
         togglePassword.addEventListener('click', () => {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
             togglePassword.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
         });
+    }
+
+    if (usernameInput) {
+        usernameInput.addEventListener('input', hidePassword);
     }
 
     document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -127,13 +140,51 @@ async function logout() {
     await authService.logout();
     currentUser = null;
     document.getElementById('auth-section').innerHTML = '';
+    resetAdminPasswordFields();
     renderLoginForm();
+}
+
+function resetAdminPasswordFields() {
+    const newPassword = document.getElementById('new-password');
+    const toggleNew = document.getElementById('toggle-new-password');
+    if (newPassword && toggleNew) {
+        newPassword.setAttribute('type', 'password');
+        newPassword.value = '';
+        toggleNew.textContent = '👁️';
+    }
+
+    const resetPassword = document.getElementById('reset-new-password');
+    const toggleReset = document.getElementById('toggle-reset-password');
+    if (resetPassword && toggleReset) {
+        resetPassword.setAttribute('type', 'password');
+        resetPassword.value = '';
+        toggleReset.textContent = '👁️';
+    }
+
+    const createUserForm = document.getElementById('create-user-form');
+    if (createUserForm) {
+        createUserForm.reset();
+    }
+    const resetPasswordForm = document.getElementById('reset-password-form');
+    if (resetPasswordForm) {
+        resetPasswordForm.reset();
+    }
+
+    const createUserMsg = document.getElementById('create-user-msg');
+    if (createUserMsg) {
+        createUserMsg.textContent = '';
+    }
+    const resetPasswordMsg = document.getElementById('reset-password-msg');
+    if (resetPasswordMsg) {
+        resetPasswordMsg.textContent = '';
+    }
 }
 
 function showMainContent() {
     document.getElementById('main-content').style.display = 'block';
     if (currentUser.role === 1) { // Admin
         document.getElementById('admin-panel').style.display = 'block';
+        resetAdminPasswordFields();
         loadUsersForAdmin();
     } else {
         document.getElementById('admin-panel').style.display = 'none';
@@ -219,6 +270,12 @@ function setupEventListeners() {
             msgDiv.textContent = 'User created successfully!';
             msgDiv.style.color = 'green';
             e.target.reset();
+            const newPassword = document.getElementById('new-password');
+            const toggleNew = document.getElementById('toggle-new-password');
+            if (newPassword && toggleNew) {
+                newPassword.setAttribute('type', 'password');
+                toggleNew.textContent = '👁️';
+            }
             loadUsersForAdmin(); // Refresh the list
         } else {
             const err = await res.json();
@@ -244,6 +301,12 @@ function setupEventListeners() {
             msgDiv.textContent = 'Password reset successfully!';
             msgDiv.style.color = 'green';
             e.target.reset();
+            const resetPassword = document.getElementById('reset-new-password');
+            const toggleReset = document.getElementById('toggle-reset-password');
+            if (resetPassword && toggleReset) {
+                resetPassword.setAttribute('type', 'password');
+                toggleReset.textContent = '👁️';
+            }
         } else {
             const err = await res.json();
             if (err.errors) {
@@ -257,9 +320,16 @@ function setupEventListeners() {
     });
 
     // Admin Password Toggles
-    const setupToggle = (toggleId, inputId) => {
+    const setupToggle = (toggleId, inputId, otherInputIds = []) => {
         const toggle = document.getElementById(toggleId);
         const input = document.getElementById(inputId);
+        const hide = () => {
+            if (input && toggle) {
+                input.setAttribute('type', 'password');
+                toggle.textContent = '👁️';
+            }
+        };
+
         if (toggle && input) {
             toggle.addEventListener('click', () => {
                 const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -267,9 +337,16 @@ function setupEventListeners() {
                 toggle.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
             });
         }
+        
+        otherInputIds.forEach(id => {
+            const other = document.getElementById(id);
+            if (other) {
+                other.addEventListener('input', hide);
+            }
+        });
     };
-    setupToggle('toggle-new-password', 'new-password');
-    setupToggle('toggle-reset-password', 'reset-new-password');
+    setupToggle('toggle-new-password', 'new-password', ['new-fullname', 'new-apt', 'new-username']);
+    setupToggle('toggle-reset-password', 'reset-new-password', ['reset-user-select']);
 }
 
 async function loadBookings() {
