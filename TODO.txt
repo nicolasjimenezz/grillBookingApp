@@ -17,15 +17,14 @@ ________________________________________________________________________________
 Important mentions:
 -You cannot create 2 users with the same username or apartment code
 -Only admins can reset passwords
+-Backend uses port 3000 and front end may use 3001
 
 __________________________________________________________________________________________
 
 Bugs to solve/features to add:
--Review mobile view (android and iOS mobile is not as good as the desktop version).Done!
--Everytime you refresh the page, or log out and log back in. The password should not be hidden. Done!
+-Review and make sure that the backend and front end ports are correctly set-up/documented. Done!
 
 Features to add:
--Add a button to show the password entered (on both, main login screen and on the user creation screen) Done!
 
 Things to do
 -Clean up the code, order/organize it, remove unused code/comments.
@@ -38,6 +37,4 @@ Ideas:
 Long-term:
 -
 
-
 _________________________________________________________________________________________
-

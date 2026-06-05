@@ -9,6 +9,8 @@ This project contains a full-stack application built with C# ASP.NET Core Web AP
 - `/package.json`: Root configuration to manage the project.
 
 ## How to Run the Backend
+Must be running before launching front end and when the front end is up
+Pres CTRL + C to stop
 
 1. Navigate to the backend directory:
    ```bash
@@ -18,9 +20,11 @@ This project contains a full-stack application built with C# ASP.NET Core Web AP
    ```bash
    dotnet run
    ```
-   The API will start on `https://localhost:5001` and `http://localhost:5000` (pre-configured in `launchSettings.json`).
+   The API will start on `https://localhost:3000`
 
 ## How to Run the Frontend
+Backend must be running before launching front end and when the front end is up
+Pres CTRL + C to stop
 
 The frontend is served by Vite.
 1. Navigate to the frontend directory:
@@ -35,6 +39,7 @@ The frontend is served by Vite.
    ```bash
    npm run dev
    ```
+4. Copy the "Local" URL and paste it in a browser
 
 ## Features Implemented
 
