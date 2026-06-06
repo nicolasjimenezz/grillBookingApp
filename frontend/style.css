@@ -51,7 +51,6 @@ form {
     width: 180px;
 }
 
-/* Stacked forms (Admin Panel) should be full width */
 #admin-panel form {
     display: flex;
     flex-direction: column;
@@ -108,11 +107,9 @@ table {
     width: 100%;
     border-collapse: collapse;
     background: white;
-    min-width: 600px; /* Force minimum width to ensure layout doesn't squash too much */
+    min-width: 600px;
 }
 
-/* Mobile Tweak: Allow smaller tables to fit if they can, 
-   but ensure booking table is wide enough for interactions */
 #booking-table {
     min-width: 800px;
 }

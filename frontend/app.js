@@ -378,8 +378,7 @@ function renderCalendar(year, month, bookings) {
     });
 
     const today = new Date();
-    // Argentina offset is UTC-3, but for simplicity in MVP frontend we use local browser date 
-    // to determine if a date is past. The backend enforces the strict Argentina time rule.
+    // For simplicity in MVP frontend we use local browser date 
     today.setHours(0,0,0,0);
 
     for (let day = 1; day <= daysInMonth; day++) {

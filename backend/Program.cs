@@ -39,7 +39,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<BookingService>();
 
-// Determine the port: Default to 3000 for AI Studio, but allow environment override for Azure
+// Determine the port
 var port = Environment.GetEnvironmentVariable("PORT") ?? "3000";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
