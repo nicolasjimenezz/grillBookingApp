@@ -354,7 +354,7 @@ async function loadBookings() {
     const month = currentViewDate.getMonth() + 1;
     const monthStr = `${year}-${month.toString().padStart(2, '0')}`;
     
-    document.getElementById('current-month-display').textContent = currentViewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    document.getElementById('current-month-display').textContent = currentViewDate.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
 
     try {
         const bookings = await bookingService.fetchBookings(monthStr);
