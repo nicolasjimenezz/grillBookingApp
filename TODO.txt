@@ -22,16 +22,13 @@ Important mentions:
 __________________________________________________________________________________________
 
 Bugs to solve/features to add:
--Review and make sure that the backend and front end ports are correctly set-up/documented. Done!
+-
 
 Features to add:
+-
 
 Things to do
--Clean up the code, order/organize it, remove unused code/comments.
--Show this to a non-tech person to ensure it is easy to understand for an user.
--Ensure the DRY rule is applied accross the code
--Launch a fresh OS in a Virtual Box and try to run the app there to confirm the set up is correct and working
-
+-
 
 Ideas:
 Long-term:
